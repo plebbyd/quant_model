@@ -7,15 +7,8 @@ from pycoral.adapters import classify
 from typing import Union, Optional
 import numpy as np
 
-model_file = 'mobilenet_v2_1.0_224_quant_edgetpu.tflite'
+model_file = 'model_quant_8_full_edgetpu.tflite'
 
-# Initialize the TF interpreter
-interpreter = edgetpu.make_interpreter(model_file)
-
-# Run an inference
-common.set_input(interpreter, image)
-interpreter.invoke()
-classes = classify.get_classes(interpreter, top_k=1)
 
 
 def _pairwise_distances_no_broadcast_helper(X, Y):
