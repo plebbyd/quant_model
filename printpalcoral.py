@@ -28,6 +28,10 @@ def _pairwise_distances_no_broadcast_helper(X, Y):
         Intermediate results. Do not use.
 
     """
+    if len(X.shape) <=1:
+        X = X.reshape(-1, 1)
+    if len(Y.shape) <=1:
+        Y = Y.reshape(-1,1)
     if X.shape[0] != Y.shape[0] or X.shape[1] != Y.shape[1]:
             raise ValueError("pairwise_distances_no_broadcast function receive"
                              "matrix with different shapes {0} and {1}".format(
