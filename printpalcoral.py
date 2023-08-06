@@ -48,7 +48,7 @@ class AutoEncoder:
         self.threshold = threshold
 
     def _set_input(self, X : np.ndarray) -> None:
-        common.input_tensor(interpreter)[:,] = X
+        common.input_tensor(self.interpreter)[:,] = X
 
     def infer(self, X : np.ndarray, scaler : bool, normalize : bool = False) -> np.ndarray:
         # Set the input first
@@ -57,7 +57,7 @@ class AutoEncoder:
                 print("[warning] - All values in X are between 0.0 and 1.0 - ou may be normalizing the data twice")
                 print("[warning] - Ignore this message if you know what you are doing.")
             X = scaler.transform(X)
-        common.set_input(self.interpreter, X)
+        self._set_input(X)
         self.interpreter.invoke()
         return common.output_tensor(self.interpreter, 0).copy()
 
