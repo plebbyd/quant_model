@@ -44,8 +44,11 @@ class AutoEncoder:
             threshold : Union[float, None] = None
         ) -> None:
         self.interpreter = edgetpu.make_interpreter(model_file)
+        self.interpreter.allocate_tensors()
         self.threshold = threshold
 
+    def _set_input(self, X : np.ndarray) -> None:
+        common.input_tensor(interpreter)[:,] = X
 
     def infer(self, X : np.ndarray, scaler : bool, normalize : bool = False) -> np.ndarray:
         # Set the input first
