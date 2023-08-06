@@ -84,5 +84,5 @@ class AutoEncoder:
         distances = _pairwise_distances_no_broadcast_helper(X, dequantized)
 
         threshold = self.threshold if self.threshold is not None else threshold
-        classes = classify.get_classes_from_scores(distances, score_threshold=threshold)
+        classes = (distances > threshold).astype('int').ravel()
         return classes
