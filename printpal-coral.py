@@ -54,7 +54,7 @@ class AutoEncoder:
         self.threshold = threshold
 
 
-    def infer(self, X : np.ndarray, normalize : bool = False, scaler : bool) -> np.ndarray:
+    def infer(self, X : np.ndarray, scaler : bool, normalize : bool = False) -> np.ndarray:
         # Set the input first
         if normalize:
             if not np.any((X > 1.0)|(X < 0.0)):
@@ -72,14 +72,14 @@ class AutoEncoder:
         X = X.flatten()
         output_details = self.interpreter.get_output_details()[0]
         if np.issubdtype(output_details['dtype'], np.integer):
-          scale, zero_point = output_details['quantization']
-          # Always convert to np.int64 to avoid overflow on subtraction.
-          return scale * (X.astype(np.int64) - zero_point)
-         return X.copy()
+            scale, zero_point = output_details['quantization']
+            # Always convert to np.int64 to avoid overflow on subtraction.
+            return scale * (X.astype(np.int64) - zero_point)
+        return X.copy()
 
 
-    def classify(self, X : np.ndarray, normalize : bool = False, scaler : bool, threshold : float = 0.5) -> np.ndarray:
-        raw_scores = self.infer(X, normalize, scaler)
+    def classify(self, X : np.ndarray, scaler : bool, normalize : bool = False, threshold : float = 0.5) -> np.ndarray:
+        raw_scores = self.infer(X, normalize=normalize, scaler=scaler)
         dequantized = self.to_dequantized_array(raw_scores)
         distances = _pairwise_distances_no_broadcast_helper(X, dequantized)
 
