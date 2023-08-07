@@ -79,7 +79,7 @@ class AutoEncoder:
         if np.issubdtype(output_details['dtype'], np.integer):
             scale, zero_point = output_details['quantization']
             # Always convert to np.int64 to avoid overflow on subtraction.
-            return scale * (X.astype(np.int64) - zero_point)
+            return (scale * (X.astype(np.int64) - zero_point)).reshape(*shape)
         X = X.reshape(*shape)
         return X.copy()
 
