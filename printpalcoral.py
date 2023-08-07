@@ -86,7 +86,7 @@ class AutoEncoder:
         dequantized = self.to_dequantized_array(raw_scores)
         distances = _pairwise_distances_no_broadcast_helper(X, dequantized)
 
-        threshold = threshold is threshold is not None else self.threshold
+        threshold = threshold if threshold is not None else self.threshold
         classes = (distances > threshold).astype('int').ravel()
         return classes
 
