@@ -73,12 +73,14 @@ class AutoEncoder:
         '''
         X is the output_tensor() returned from self.infer()
         '''
+        shape = X.shape
         X = X.flatten()
         output_details = self.interpreter.get_output_details()[0]
         if np.issubdtype(output_details['dtype'], np.integer):
             scale, zero_point = output_details['quantization']
             # Always convert to np.int64 to avoid overflow on subtraction.
             return scale * (X.astype(np.int64) - zero_point)
+        X = X.reshape(*X)
         return X.copy()
 
 
@@ -99,8 +101,8 @@ class AutoEncoder:
         classify - measures the latency of running the entire classify method
         '''
         row = np.random.rand(*self._get_input_size())
-        self._set_input(row)
         if method == 'model':
+            self._set_input(row)
             start = time.perf_counter()
             for i in range(iterations):
                 self.interpreter.invoke()
