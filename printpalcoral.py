@@ -45,7 +45,7 @@ class AutoEncoder:
 
     def __init__(self,
             model_file : str,
-            threshold : Union[float, None] = None
+            threshold : float = 0.5
         ) -> None:
         self.interpreter = edgetpu.make_interpreter(model_file)
         self.interpreter.allocate_tensors()
@@ -53,6 +53,9 @@ class AutoEncoder:
 
     def _set_input(self, X : np.ndarray) -> None:
         common.input_tensor(self.interpreter)[:,] = X
+
+    def _get_input_size(self) -> tuple:
+        return self.interpreter.get_input_details()[0]['shape']
 
     def infer(self, X : np.ndarray, scaler : bool, normalize : bool = False) -> np.ndarray:
         # Set the input first
@@ -78,11 +81,21 @@ class AutoEncoder:
         return X.copy()
 
 
-    def classify(self, X : np.ndarray, scaler : bool, normalize : bool = False, threshold : float = 0.5) -> np.ndarray:
+    def classify(self, X : np.ndarray, scaler : bool, normalize : bool = False, threshold : Union[float, None] = None) -> np.ndarray:
         raw_scores = self.infer(X, normalize=normalize, scaler=scaler)
         dequantized = self.to_dequantized_array(raw_scores)
         distances = _pairwise_distances_no_broadcast_helper(X, dequantized)
 
-        threshold = self.threshold if self.threshold is not None else threshold
+        threshold = threshold is threshold is not None else self.threshold
         classes = (distances > threshold).astype('int').ravel()
         return classes
+
+    def perf_analyze(self, batch_size : int = 1, iterations : int = 100):
+        row = np.random.rand(*self._get_input_size())
+        start = time.perf_counter()
+        self._set_input(row)
+        for i in range(iterations):
+            self.interpreter.invoke()
+        inference_time = time.perf_counter() - start
+        print(f'Model performance summary: {iterations} iterations | {inference_time/iterations} second/inference')
+        return inference_time / iterations
