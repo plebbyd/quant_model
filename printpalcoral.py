@@ -6,6 +6,7 @@ from pycoral.adapters import common
 from pycoral.adapters import classify
 from typing import Union, Optional
 import numpy as np
+import time
 
 model_file = 'model_quant_8_full_edgetpu.tflite'
 
