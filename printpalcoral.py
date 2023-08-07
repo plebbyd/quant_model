@@ -98,5 +98,5 @@ class AutoEncoder:
         for i in range(iterations):
             self.interpreter.invoke()
         inference_time = time.perf_counter() - start
-        print(f'Model performance summary: {iterations} iterations | {inference_time/iterations} second/inference')
+        print(f'Model performance summary: {iterations} iterations | latency: {(inference_time * 1000)/iterations} ms')
         return inference_time / iterations
