@@ -80,7 +80,7 @@ class AutoEncoder:
             scale, zero_point = output_details['quantization']
             # Always convert to np.int64 to avoid overflow on subtraction.
             return scale * (X.astype(np.int64) - zero_point)
-        X = X.reshape(*X)
+        X = X.reshape(*shape)
         return X.copy()
 
 
