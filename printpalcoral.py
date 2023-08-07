@@ -91,12 +91,36 @@ class AutoEncoder:
         classes = (distances > threshold).astype('int').ravel()
         return classes
 
-    def perf_analyze(self, batch_size : int = 1, iterations : int = 100):
+    def perf_analyze(self, method : str = 'model', batch_size : int = 1, iterations : int = 100):
+        '''
+        Methods available:
+        model - measures the latency of running the model only
+        infer - measures the latency of running the entire infer method
+        classify - measures the latency of running the entire classify method
+        '''
         row = np.random.rand(*self._get_input_size())
-        start = time.perf_counter()
         self._set_input(row)
-        for i in range(iterations):
-            self.interpreter.invoke()
-        inference_time = time.perf_counter() - start
+        if method == 'model':
+            start = time.perf_counter()
+            for i in range(iterations):
+                self.interpreter.invoke()
+            inference_time = time.perf_counter() - start
+        elif method == 'infer':
+            start = time.perf_counter()
+            for i in range(iterations):
+                self.infer(row, False, False)
+            inference_time = time.perf_counter() - start
+        elif method == 'classify':
+            start = time.perf_counter()
+            for i in range(iterations):
+                self.classify(row, False, False, 0.1)
+            inference_time = time.perf_counter() - start
         print(f'Model performance summary: {iterations} iterations | latency: {(inference_time * 1000)/iterations} ms')
-        return inference_time / iterations
+        report = {
+            'method' : method,
+            'latency_ms' : (inference_time * 1000) / iterations,
+            'iterations' : iterations,
+            'batch_size' : batch_size,
+            'total_time' : inference_time
+        }
+        return report
